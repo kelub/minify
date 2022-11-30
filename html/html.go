@@ -50,6 +50,8 @@ type Minifier struct {
 	KeepEndTags             bool
 	KeepQuotes              bool
 	KeepWhitespace          bool
+
+	IgnoreScript bool
 }
 
 // Minify minifies HTML data, it reads from r and writes to w.
@@ -124,7 +126,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 		case html.TextToken:
 			// CSS and JS minifiers for inline code
 			if rawTagHash != 0 {
-				if rawTagHash == Style || rawTagHash == Script || rawTagHash == Iframe {
+				if rawTagHash == Style || (!o.IgnoreScript && rawTagHash == Script) || rawTagHash == Iframe {
 					var mimetype []byte
 					var params map[string]string
 					if rawTagHash == Iframe {

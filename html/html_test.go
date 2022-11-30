@@ -527,3 +527,56 @@ func ExampleMinify_writer() {
 	w.Close()
 	// Output: <h1>Example</h1>
 }
+
+func TestHTMLIgnoreScript(t *testing.T) {
+	htmlTests := []struct {
+		html     string
+		expected string
+	}{
+		{`cats  and 	dogs `, `cats and dogs`},
+		{` <div> <i> test </i> <b> test </b> </div> `, `<div> <i> test </i> <b> test </b> </div>`},
+		{`<script>
+a
+b
+c
+d
+</script>`, `<script>
+a
+b
+c
+d
+</script>`},
+		{`<script id="model_view-tpl" type="text/html">
+	<model-viewer
+      toggleable="true"
+      ar-status="not-presenting"
+      tabindex="0"
+      camera-controls
+      data-js-focus-visible
+      src="<%= src %>"
+      poster="<%= poster %>"
+      class="model_viewer">
+    </model-viewer> </script>`, `<script id=model_view-tpl type=text/html>
+	<model-viewer
+      toggleable="true"
+      ar-status="not-presenting"
+      tabindex="0"
+      camera-controls
+      data-js-focus-visible
+      src="<%= src %>"
+      poster="<%= poster %>"
+      class="model_viewer">
+    </model-viewer> </script>`},
+	}
+
+	m := minify.New()
+	htmlMinifier := &Minifier{KeepWhitespace: true, IgnoreScript: true}
+	for _, tt := range htmlTests {
+		t.Run(tt.html, func(t *testing.T) {
+			r := bytes.NewBufferString(tt.html)
+			w := &bytes.Buffer{}
+			err := htmlMinifier.Minify(m, w, r, nil)
+			test.Minify(t, tt.html, err, w.String(), tt.expected)
+		})
+	}
+}
