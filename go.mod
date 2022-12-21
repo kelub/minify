@@ -12,3 +12,5 @@ require (
 	github.com/tdewolff/parse/v2 v2.6.4
 	github.com/tdewolff/test v1.0.7
 )
+
+replace github.com/tdewolff/parse/v2 v2.6.4 => github.com/kelub/parse/v2 v2.6.5-0.20221221023134-e8c1951ecfdc
